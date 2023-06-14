@@ -7,7 +7,31 @@ from math import isclose, inf
 
 from abc import ABC, abstractmethod
 
-from planner.model import Patient
+
+class Patient:
+    def __init__(self, id, priority, room, specialty, day, operatingTime, arrival_delay, covid, precedence, delayWeight, anesthesia, anesthetist, order, delay):
+        self.id = id
+        self.priority = priority
+        self.room = room
+        self.specialty = specialty
+        self.day = day
+        self.operatingTime = operatingTime
+        self.arrival_delay = arrival_delay
+        self.covid = covid
+        self.precedence = precedence
+        self.delayWeight = delayWeight
+        self.anesthesia = anesthesia
+        self.anesthetist = anesthetist
+        self.order = order
+        self.delay = delay
+
+    def __str__(self):
+        return f'id:{self.id:4}; priority:{self.priority:4}; room:{self.room:2}; specialty:{self.specialty:2}; day:{self.day:2}; operatingTime:{self.operatingTime:4}; covid:{self.covid:2}; precedence:{self.precedence:2}; delay weight:{self.none_to_empty(self.delayWeight):3} anesthesia:{self.none_to_empty(self.anesthesia):2}; anesthetist:{self.none_to_empty(self.anesthetist):2}; order:{self.order:6};'
+
+    def none_to_empty(self, s):
+        if(s is None):
+            return ""
+        return str(s)
 
 
 class Planner(ABC):
@@ -819,16 +843,9 @@ class LBBDPlanner(TwoPhasePlanner):
                 for alpha in self.MP_instance.alpha:
                     for t in self.MP_instance.t:
                         self.MP_instance.beta[alpha, i, t].fix(0)
-            if self.MP_instance.specialty[i] == 1:
-                for k in [3, 4]:
-                    for t in self.MP_instance.t:
-                        self.MP_instance.x[i, k, t].fix(0)
-                        self.MP_instance.delta[1, i, k, t].fix(0)
-                        for alpha in self.MP_instance.alpha:
-                            self.MP_instance.z[1, alpha, i, k, t].fix(0)
-            if self.MP_instance.specialty[i] == 2:
-                for k in [1, 2]:
-                    for t in self.MP_instance.t:
+            for k in self.MP_instance.k:
+                for t in self.MP_instance.t:
+                    if self.MP_instance.tau[self.MP_instance.specialty[i], k, t] == 0:
                         self.MP_instance.x[i, k, t].fix(0)
                         self.MP_instance.delta[1, i, k, t].fix(0)
                         for alpha in self.MP_instance.alpha:

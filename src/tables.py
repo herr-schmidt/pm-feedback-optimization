@@ -4,14 +4,24 @@ robustness_table = {(1, 1, 1): robustness,
                     (1, 1, 3): robustness,
                     (1, 1, 4): robustness,
                     (1, 1, 5): robustness,
+                    (1, 1, 6): robustness,
+                    (1, 1, 7): robustness,
+                    (1, 1, 8): robustness,
+                    (1, 1, 9): robustness,
+                    (1, 1, 10): robustness,
                     }
 
-opening_time = 270
+opening_time = 300
 operating_slots_table = {(1, 1): opening_time,
                          (1, 2): opening_time,
                          (1, 3): opening_time,
                          (1, 4): opening_time,
                          (1, 5): opening_time,
+                         (1, 6): opening_time,
+                         (1, 7): opening_time,
+                         (1, 8): opening_time,
+                         (1, 9): opening_time,
+                         (1, 10): opening_time,
                          }
 
 tau_table = {(1, 1, 1): 1,
@@ -19,6 +29,11 @@ tau_table = {(1, 1, 1): 1,
              (1, 1, 3): 1,
              (1, 1, 4): 1,
              (1, 1, 5): 1,
+             (1, 1, 6): 1,
+             (1, 1, 7): 1,
+             (1, 1, 8): 1,
+             (1, 1, 9): 1,
+             (1, 1, 10): 1,
              }
 
 dirty_mapping_table = {"69-391": 0,
