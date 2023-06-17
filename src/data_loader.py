@@ -28,6 +28,7 @@ class DataLoader:
         self.patients_procedures = {}
         self.patients_specialties = {}
         self.procedures_types = {} # clean/dirty
+        self.actual_operating_times = {}
 
         np.random.seed(seed=781015)
 
@@ -42,7 +43,7 @@ class DataLoader:
                 'I': {None: len(self.patients_ids)},
                 'J': {None: 1},
                 'K': {None: 1},
-                'T': {None: 10},
+                'T': {None: 15},
                 'A': {None: 1},
                 'M': {None: 7},
                 'Q': {None: 1},
@@ -89,6 +90,8 @@ class DataLoader:
         self.patients_specialties = {solver_patient_id: 1 for solver_patient_id in self.solver_patients_ids}
         self.compute_patients_procedures_types() # clean/dirty
         self.compute_relative_precedences()
+
+        self.actual_operating_times = {solver_patient_id: actual_operating_time for (solver_patient_id, actual_operating_time) in zip(self.solver_patients_ids, self.input_data_frame["Actual_time"])}
 
         self.data_consistency = True
         
