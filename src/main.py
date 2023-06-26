@@ -1,6 +1,27 @@
 from data_loader import DataLoader
 from planners import HeuristicLBBDPlanner
 from utils import SolutionVisualizer
+from datetime import datetime, timedelta
+from pprint import pprint
+
+# extracts a python dict of the form {date: list(patient_ids)}
+# needed for the PM2 phase
+def extract_selected_patients_dict(solution, solver_input):
+    starting_day = datetime(year=2022, month=9, day=5)
+
+    selected_patients = {}
+
+    for (i, k, t) in solution.x.keys():
+        offset_weeks = (t - 1) // 5
+        offset_days =  (t - 1) % 5
+        day = starting_day + timedelta(days=offset_days, weeks=offset_weeks) # t - 1 since solver has t = 1 for the first day, and we want to include starting day
+        patient_id = int(solver_input[None]["patientId"][i])
+        if day in selected_patients:
+            selected_patients[day].append(patient_id)
+        else:
+            selected_patients[day] = [patient_id]
+
+    return selected_patients
 
 dl = DataLoader()
 dl.load_input_file("../input/input.xlsx", predicted_operating_times=True)
@@ -39,3 +60,6 @@ def compute_real_world_utilization_and_overtime(solution, actual_times):
 
 utilization_and_overtime = compute_real_world_utilization_and_overtime(planner.solution, dl.actual_operating_times)
 print(utilization_and_overtime)
+
+selected_patients = extract_selected_patients_dict(planner.solution, solver_input)
+pprint(selected_patients)
