@@ -517,7 +517,7 @@ class SimplePlanner(Planner):
         self.define_anesthetist_assignment_constraint(self.model)
         self.define_z_variables(self.model)
         self.define_z_constraints(self.model)
-        self.define_symmetry_constraints(self.model)
+        # self.define_symmetry_constraints(self.model)
         self.define_anesthetist_time_constraint(self.model)
         self.define_anesthetist_no_overlap_constraint(self.model)
         self.define_lambda_constraint(self.model)
@@ -649,7 +649,7 @@ class TwoPhasePlanner(Planner):
         self.define_anesthetist_assignment_constraint(self.MP_model)
         self.define_z_variables(self.MP_model)
         self.define_z_constraints(self.MP_model)
-        self.define_symmetry_constraints(self.MP_model)
+        # self.define_symmetry_constraints(self.MP_model)
         self.define_anesthetist_time_constraint(self.MP_model)
 
     def define_x_parameters(self):
@@ -675,7 +675,7 @@ class TwoPhasePlanner(Planner):
         self.define_anesthetist_assignment_constraint(self.SP_model)
         self.define_z_variables(self.SP_model)
         self.define_z_constraints(self.SP_model)
-        self.define_symmetry_constraints(self.SP_model)
+        # self.define_symmetry_constraints(self.SP_model)
         self.define_anesthetist_time_constraint(self.SP_model)
 
         # SP's components
