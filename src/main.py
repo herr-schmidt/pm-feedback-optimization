@@ -3,8 +3,12 @@ from planners import HeuristicLBBDPlanner
 from utils import SolutionVisualizer
 from datetime import datetime, timedelta
 from pprint import pprint
+import bisect
+import itertools
 
-# extracts a python dict of the form {date: list(patient_ids)}
+date_t_map = {}
+
+# extracts a python dict of the form {date: list((gamma, patient_id, precedence))}
 # needed for the PM2 phase
 def extract_selected_patients_dict(solution, solver_input):
     starting_day = datetime(year=2022, month=9, day=5)
@@ -16,10 +20,62 @@ def extract_selected_patients_dict(solution, solver_input):
         offset_days =  (t - 1) % 5
         day = starting_day + timedelta(days=offset_days, weeks=offset_weeks) # t - 1 since solver has t = 1 for the first day, and we want to include starting day
         patient_id = int(solver_input[None]["patientId"][i])
+
+        gamma_id_precedence = (solution.gamma[i], patient_id, solution.precedence[i])
+        print(gamma_id_precedence)
+
         if day in selected_patients:
-            selected_patients[day].append(patient_id)
+            bisect.insort(selected_patients[day], gamma_id_precedence)
         else:
-            selected_patients[day] = [patient_id]
+            selected_patients[day] = [gamma_id_precedence]
+
+        # in order to easily retrieve t's when reaccessing solver's variables
+        date_t_map[day] = t
+
+    return selected_patients
+
+# PM2
+# return evaluation
+def evaluate_slot(date, patients_ids):
+    return 5
+
+# compute, for each non-fixed slot, the permutations on which PM2 achieves the minimum overtime
+# here selected_patients_dict should contain only the slots which were not fixed
+def compute_best_permutations(selected_patients_dict):
+    # will contain the tuple (permutation, permutation_evaluation) for each date
+    best_permutations = {}
+    
+    for date in selected_patients_dict.keys():
+        # extract a list of lists, according to the prerequisites of compute_ids_permutations (namely, a list of lists each one of which is
+        # relative to a different precedence)
+        current_precedence = 1
+        current_precedence_partition = []
+        id_partition_by_precedence = []
+        for (_, id, precedence) in selected_patients_dict[date]:
+            if precedence == current_precedence:
+                current_precedence_partition.append(id)
+            else:
+                id_partition_by_precedence.append(current_precedence_partition)
+                current_precedence = precedence
+                current_precedence_partition = [id]
+
+        # append last chunk
+        id_partition_by_precedence.append(current_precedence_partition)
+
+        permutations = compute_ids_permutations(id_partition_by_precedence)
+        evaluations = [(permutation, evaluate_slot(date, permutation)) for permutation in permutations]
+        best_permutation = min(evaluations, key=lambda e:e[1])
+
+        best_permutations[date] = best_permutation
+
+    return best_permutations
+
+
+def extract_patient_ids(solution_dictionary):
+    selected_patients = {}
+
+    for date in solution_dictionary.keys():
+        selected_patients[date] = list(map(lambda gamma_id_precedence: gamma_id_precedence[1], solution_dictionary[date]))
 
     return selected_patients
 
@@ -29,7 +85,7 @@ dl.load_input_file("../input/input.xlsx", predicted_operating_times=True)
 solver_input = dl.generate_solver_input()
 print(solver_input)
 
-planner = HeuristicLBBDPlanner(timeLimit=290, gap = 0.005, iterations_cap=30, solver="cplex")
+planner = HeuristicLBBDPlanner(timeLimit=600, gap = 0.0, iterations_cap=30, solver="cplex")
 planner.solve_model(solver_input)
 
 sv = SolutionVisualizer()
@@ -63,3 +119,17 @@ print(utilization_and_overtime)
 
 selected_patients = extract_selected_patients_dict(planner.solution, solver_input)
 pprint(selected_patients)
+
+selected_patients_ids = extract_patient_ids(selected_patients)
+pprint(selected_patients_ids)
+
+# id_lists: list of lists where each list contains patients having same precedence (in increasing order)
+# returns the list of permutations of the input list (considered as the concatenation of lists in id_lists)
+def compute_ids_permutations(id_lists):
+    iterators = [itertools.permutations(id_list) for id_list in id_lists]
+    product_iterator = itertools.product(*iterators)
+    return [list(itertools.chain(*permutation)) for permutation in product_iterator]
+
+pprint(compute_best_permutations(selected_patients))
+
+pprint(date_t_map)
