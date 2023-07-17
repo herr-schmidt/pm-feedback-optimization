@@ -851,14 +851,14 @@ class LBBDPlanner(TwoPhasePlanner):
                         for alpha in self.MP_instance.alpha:
                             self.MP_instance.z[1, alpha, i, k, t].fix(0)
 
-    def solve_model(self, data):
+    def create_model(self, data):
         self.reset_run_info()
         self.define_model()
         self.create_MP_instance(data)
         self.MP_instance.patients_cuts = pyo.ConstraintList()
         self.MP_instance.objective_function_cuts = pyo.ConstraintList()
-        self.selected_x_indices = set()
 
+    def solve_model(self, data):
         self.iterations = 0
         self.last_round = False
         self.solution = None

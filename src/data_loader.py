@@ -73,12 +73,12 @@ class DataLoader:
 
         self.solver_patients_ids = [solver_patient_id for solver_patient_id in range(1, len(self.input_data_frame) + 1)]
 
-        if predicted_operating_times: # consider as operating times the predictions provided by PM1; delays are > 0 only when the prediction is greater than the medical staff estimate
+        if predicted_operating_times: # consider as operating times the predictions provided by PM1
             self.operating_times = {solver_patient_id: operating_time for (solver_patient_id, operating_time) in zip(self.solver_patients_ids, self.input_data_frame["Prediction"])}
-            self.delay_times = {(1, solver_patient_id): (staff_estimate - self.operating_times[solver_patient_id] if staff_estimate - self.operating_times[solver_patient_id] > 0 else 0) for (solver_patient_id, staff_estimate) in zip(self.solver_patients_ids, self.input_data_frame["Staff_estimate"])}
-        else: # consider operating times provided by medical personnel; delays are always 0 since we cannot compute them
+        else: # consider operating times provided by medical personnel
             self.operating_times = {solver_patient_id: operating_time for (solver_patient_id, operating_time) in zip(self.solver_patients_ids, self.input_data_frame["Staff_estimate"])}
-            self.delay_times = {(1, solver_patient_id): 0 for solver_patient_id in self.solver_patients_ids}
+        
+        self.delay_times = {(1, solver_patient_id): 30 for solver_patient_id in self.solver_patients_ids}
 
         self.priority_scores = {solver_patient_id: priority_score for (solver_patient_id, priority_score) in zip(self.solver_patients_ids, np.random.uniform(low=10, high=120, size=len(self.solver_patients_ids)))}
         self.anesthesiae = {solver_patient_id: 0 for solver_patient_id in self.solver_patients_ids}
