@@ -4,22 +4,17 @@ from pprint import pprint
 ML_feedback_optimizer = MLFeedbackOptimizer()
 
 # Phase 1
-ML_feedback_optimizer.create_model(predict_operating_times=True)
+ML_feedback_optimizer.create_model(predict_operating_times=False)
 ML_feedback_optimizer.solve_model()
 ML_feedback_optimizer.visualize_solution()
 utilization_and_overtime = ML_feedback_optimizer.compute_real_world_utilization_and_overtime()
-pprint(utilization_and_overtime)
+
+with open("../logs/phase1.log", "w") as log_file:
+    pprint(utilization_and_overtime, log_file)
+    pprint("selected patients: " + str(ML_feedback_optimizer.solution_visualizer.count_operated_patients(ML_feedback_optimizer.planner.solution)), log_file)
 
 ML_feedback_optimizer.extract_selected_patients_dict()
-pprint(ML_feedback_optimizer.selected_patients)
-
-print(ML_feedback_optimizer.selected_patients)
 ML_feedback_optimizer.check_overtime()
-
-selected_patients_ids = ML_feedback_optimizer.extract_patient_ids()
-pprint(selected_patients_ids)
-
-pprint(ML_feedback_optimizer.fixed_ORs)
 
 # first trial: reoptimize with cut, up to N times
 N = 100
@@ -33,18 +28,16 @@ while iteration < N and sum(ML_feedback_optimizer.fixed_ORs.values()) < 15:
     
     # re-solve
     ML_feedback_optimizer.solve_model()
-    # ML_feedback_optimizer.visualize_solution()
+    ML_feedback_optimizer.visualize_solution()
     utilization_and_overtime = ML_feedback_optimizer.compute_real_world_utilization_and_overtime()
-    pprint(utilization_and_overtime)
+
+    with open("../logs/phase2_" + str(iteration) + ".log", "w") as log_file:
+        pprint(utilization_and_overtime, log_file)
+        pprint("selected patients: " + str(ML_feedback_optimizer.solution_visualizer.count_operated_patients(ML_feedback_optimizer.planner.solution)), log_file)
+
 
     ML_feedback_optimizer.extract_selected_patients_dict()
-    pprint(ML_feedback_optimizer.selected_patients)
-
-    print(ML_feedback_optimizer.selected_patients)
     ML_feedback_optimizer.check_overtime()
-
-    selected_patients_ids = ML_feedback_optimizer.extract_patient_ids()
-    pprint(selected_patients_ids)
 
     pprint(ML_feedback_optimizer.fixed_ORs)
     

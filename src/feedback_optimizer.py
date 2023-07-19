@@ -3,7 +3,8 @@ from planners import HeuristicLBBDPlanner
 from utils import SolutionVisualizer
 from datetime import datetime, timedelta
 from pandas import DataFrame, read_excel, ExcelWriter
-from Predict_DAY_delay_class import day_delay_predictor
+# from Predict_DAY_delay_class import day_delay_predictor
+from Predict_DAY_delay_class_senza_pm1 import day_delay_predictor
 import bisect
 import itertools
 import random
@@ -18,7 +19,7 @@ class MLFeedbackOptimizer():
 
         self.phase_2_predictor = day_delay_predictor()
 
-        self.threshold = 315
+        self.threshold = 305
         self.date_t_map = {}
         self.overall_solution = {}
         self.fixed_ORs = {}

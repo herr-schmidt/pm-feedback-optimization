@@ -859,6 +859,9 @@ class LBBDPlanner(TwoPhasePlanner):
         self.MP_instance.objective_function_cuts = pyo.ConstraintList()
 
     def solve_model(self, data):
+        self.solver._last_solve_time = 0
+        self.solver.options[self.timeLimit] = 60
+
         self.iterations = 0
         self.last_round = False
         self.solution = None
